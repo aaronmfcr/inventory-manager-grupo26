@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head(#{menu.notificaciones})}"></head>
+    <body>
+        <div class="im-layout">
+            <aside th:replace="~{general/fragmentos :: sidebar}"></aside>
+            <div class="im-main">
+                <header th:replace="~{general/fragmentos :: topbar}"></header>
+                <main class="im-content">
+                    <h1 class="im-title">[[#{menu.notificaciones}]]</h1>
+
+                    <div class="im-alertas-head">
+                        <div class="im-alertas-total">
+                            <i class="fa-solid fa-bell"></i>
+                            <span>[[#{notificacion.total(${#lists.size(notificaciones)})}]]</span>
+                        </div>
+                        <form th:action="@{/notificacion/limpiar}" method="POST" th:if="${!notificaciones.empty}">
+                            <button type="submit" class="btn-im">[[#{notificacion.limpiar}]]</button>
+                        </form>
+                    </div>
+
+                    <!-- HU10: todas las notificaciones; HU7: alertas de stock -->
+                    <div class="im-alerta" th:each="n : ${notificaciones}" th:classappend="${!n.leida} ? 'nueva'">
+                        <div class="im-alerta-icono" th:classappend="${n.tipo}">
+                            <i class="fa-solid" th:classappend="${n.tipo == 'STOCK_BAJO'} ? 'fa-triangle-exclamation' : (${n.tipo == 'SIN_STOCK'} ? 'fa-box-open' : (${n.tipo == 'MENSAJE'} ? 'fa-envelope' : 'fa-truck'))"></i>
+                        </div>
+                        <div>
+                            <div class="im-alerta-titulo" th:text="#{${'notificacion.titulo.' + n.tipo}}">Stock Bajo</div>
+                            <div class="im-alerta-texto" th:text="#{${'notificacion.texto.' + n.tipo}(${n.referencia}, ${n.cantidad})}">Texto</div>
+                            <div class="im-alerta-fecha">[[${#temporals.format(n.fecha, 'd/M/yyyy HH:mm')}]]</div>
+                        </div>
+                        <form th:action="@{/notificacion/eliminar}" method="POST" class="im-alerta-cerrar">
+                            <input type="hidden" name="idNotificacion" th:value="${n.idNotificacion}"/>
+                            <button type="submit" class="btn-close" th:title="#{accion.eliminar}"></button>
+                        </form>
+                    </div>
+
+                    <div class="im-table-card im-table-vacia" style="max-width: 989px" th:if="${notificaciones.empty}">
+                        <i class="fa-regular fa-bell-slash fa-2x mb-2 d-block"></i>
+                        [[#{notificacion.noDatos}]]
+                    </div>
+
+                    <!-- HU7: productos que actualmente están bajo el mínimo -->
+                    <div th:if="${!productosStockBajo.empty}" style="max-width: 989px" class="mt-5">
+                        <h2 class="im-card-title mb-3">[[#{notificacion.stockActual}]]</h2>
+                        <div class="im-table-card">
+                            <table class="im-table">
+                                <tbody>
+                                    <tr th:each="p : ${productosStockBajo}">
+                                        <td>[[${p.nombre}]]</td>
+                                        <td>[[#{producto.stock}]]: [[${p.existencias}]] / [[#{producto.minimo}]]: [[${p.stockMinimo}]]</td>
+                                        <td class="centro"><span class="im-estado" th:classappend="${p.estadoStock}" th:text="#{${'estado.' + p.estadoStock}}"></span></td>
+                                        <td class="centro"><a th:href="@{/pedido/listado}" class="btn-im btn-im-sm">[[#{pedido.nuevo}]]</a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </body>
+</html>
