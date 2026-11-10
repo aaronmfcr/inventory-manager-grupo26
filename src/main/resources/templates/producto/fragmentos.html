@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <!-- Fragmento: tabla de productos (se usa en el listado y en la búsqueda) -->
+        <div th:fragment="tablaProductos" class="im-table-card sombra">
+            <table class="im-table" th:if="${productos != null and !productos.empty}">
+                <thead>
+                    <tr>
+                        <th>[[#{producto.nombre}]]</th>
+                        <th>[[#{producto.sku}]]</th>
+                        <th>[[#{producto.categoria}]]</th>
+                        <th>[[#{producto.precio}]]</th>
+                        <th>[[#{producto.stock}]]</th>
+                        <th class="centro">[[#{producto.estado}]]</th>
+                        <th class="centro">[[#{producto.acciones}]]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${productos}">
+                        <td>[[${p.nombre}]]</td>
+                        <td>[[${p.sku}]]</td>
+                        <td>[[${p.categoria?.descripcion}]]</td>
+                        <td th:insert="~{general/fragmentos :: colones(${p.precio})}"></td>
+                        <td>[[${p.existencias}]]</td>
+                        <td class="centro">
+                            <span class="im-estado" th:classappend="${p.estadoStock}"
+                                  th:text="#{${'estado.' + p.estadoStock}}">En stock</span>
+                        </td>
+                        <td class="centro text-nowrap">
+                            <button type="button" class="im-accion reponer" th:title="#{producto.reponer}"
+                                    data-bs-toggle="modal" data-bs-target="#reponerStock"
+                                    th:data-id="${p.idProducto}" th:data-nombre="${p.nombre}"
+                                    onclick="prepararReponer(this)">
+                                <i class="fa-solid fa-boxes-stacked"></i>
+                            </button>
+                            <a th:href="@{/producto/modificar/{id}(id=${p.idProducto})}" class="im-accion" th:title="#{accion.editar}">
+                                <i class="fa-solid fa-pencil"></i>
+                            </a>
+                            <button type="button" class="im-accion eliminar" th:title="#{accion.eliminar}"
+                                    data-bs-toggle="modal" data-bs-target="#confirmarEliminar"
+                                    th:onclick="|confirmarEliminar(${p.idProducto})|">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="im-table-vacia" th:if="${productos == null or productos.empty}">
+                <i class="fa-solid fa-box-open fa-2x mb-2 d-block"></i>
+                [[#{producto.noDatos}]]
+            </div>
+        </div>
+
+        <!-- Fragmento: modal para agregar producto (HU1) -->
+        <div th:fragment="agregarProducto" id="agregarProducto" class="modal fade im-modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">[[#{producto.agregar}]]</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form th:action="@{/producto/guardar}" method="POST">
+                        <div class="modal-body">
+                            <p class="im-modal-sub">[[#{producto.agregarSub}]]</p>
+                            <div th:replace="~{producto/fragmentos :: camposProducto(${null})}"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">[[#{accion.cancelar}]]</button>
+                            <button class="btn-im btn-im-sm" type="submit"><i class="fa-solid fa-floppy-disk"></i> [[#{accion.guardar}]]</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fragmento: campos del formulario de producto (agregar y modificar) -->
+        <div th:fragment="camposProducto(p)" class="row g-3">
+            <input type="hidden" name="idProducto" th:value="${p?.idProducto}"/>
+            <div class="col-md-8">
+                <label class="im-label">[[#{producto.nombre}]]</label>
+                <input type="text" class="form-control im-input" name="nombre" maxlength="80" required th:value="${p?.nombre}"/>
+            </div>
+            <div class="col-md-4">
+                <label class="im-label">[[#{producto.sku}]]</label>
+                <input type="text" class="form-control im-input" name="sku" maxlength="20" required th:value="${p?.sku}"/>
+            </div>
+            <div class="col-md-6">
+                <label class="im-label">[[#{producto.categoria}]]</label>
+                <select class="form-select im-input" name="categoria.idCategoria" required>
+                    <option value="" th:text="#{producto.seleccioneCategoria}">Seleccione</option>
+                    <option th:each="c : ${categorias}" th:value="${c.idCategoria}" th:text="${c.descripcion}"
+                            th:selected="${p != null and p.categoria != null and p.categoria.idCategoria == c.idCategoria}"></option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="im-label">[[#{producto.precio}]] (₡)</label>
+                <input type="number" class="form-control im-input" name="precio" min="0" step="0.01" required th:value="${p?.precio}"/>
+            </div>
+            <div class="col-md-6">
+                <label class="im-label">[[#{producto.stock}]]</label>
+                <input type="number" class="form-control im-input" name="existencias" min="0" required th:value="${p != null ? p.existencias : 0}"/>
+            </div>
+            <div class="col-md-6">
+                <label class="im-label">[[#{producto.stockMinimo}]]</label>
+                <input type="number" class="form-control im-input" name="stockMinimo" min="0" required th:value="${p != null ? p.stockMinimo : 5}"/>
+                <small class="text-muted">[[#{producto.stockMinimoAyuda}]]</small>
+            </div>
+            <input type="hidden" name="activo" value="true"/>
+        </div>
+
+        <!-- Fragmento: modal para reponer stock (HU8) -->
+        <div th:fragment="reponerStock" id="reponerStock" class="modal fade im-modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">[[#{producto.reponer}]]</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form th:action="@{/producto/reponer}" method="POST">
+                        <div class="modal-body">
+                            <p class="im-modal-sub" id="reponerNombre"></p>
+                            <input type="hidden" name="idProducto" id="reponerId"/>
+                            <label class="im-label">[[#{producto.cantidadRecibida}]]</label>
+                            <input type="number" class="form-control im-input" name="cantidad" min="1" required/>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">[[#{accion.cancelar}]]</button>
+                            <button class="btn-im btn-im-sm" type="submit">[[#{producto.actualizarStock}]]</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fragmento: modal para confirmar la eliminación (HU3) -->
+        <div th:fragment="eliminarProducto" id="confirmarEliminar" class="modal fade im-modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-danger"><i class="fa-solid fa-trash-can me-2"></i>[[#{accion.eliminar}]]</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form th:action="@{/producto/eliminar}" method="POST">
+                        <div class="modal-body">
+                            <p class="im-modal-sub">[[#{mensaje.confirmar}]]</p>
+                            <input type="hidden" id="idEliminar" name="idProducto"/>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">[[#{accion.cancelar}]]</button>
+                            <button class="btn btn-danger" type="submit">[[#{accion.eliminar}]]</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fragmento: modal de categorías (HU5) -->
+        <div th:fragment="categorias" id="modalCategorias" class="modal fade im-modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">[[#{categoria.titulo}]]</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form th:action="@{/categoria/guardar}" method="POST" class="d-flex gap-2 mb-4">
+                            <input type="text" class="form-control im-input" name="descripcion" maxlength="50" required
+                                   th:placeholder="#{categoria.nueva}"/>
+                            <input type="hidden" name="activo" value="true"/>
+                            <button class="btn-im btn-im-sm" type="submit"><i class="fa-solid fa-plus"></i></button>
+                        </form>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center"
+                                th:each="c : ${categorias}">
+                                <span class="im-alerta-texto">[[${c.descripcion}]]
+                                    <span class="badge rounded-pill text-bg-light ms-2">[[${#lists.size(c.productos)}]]</span>
+                                </span>
+                                <form th:action="@{/categoria/eliminar}" method="POST" class="m-0">
+                                    <input type="hidden" name="idCategoria" th:value="${c.idCategoria}"/>
+                                    <button type="submit" class="im-accion eliminar" th:title="#{accion.eliminar}">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

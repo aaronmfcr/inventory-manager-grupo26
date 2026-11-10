@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head(#{producto.modificar})}"></head>
+    <body>
+        <div class="im-layout">
+            <aside th:replace="~{general/fragmentos :: sidebar}"></aside>
+            <div class="im-main">
+                <header th:replace="~{general/fragmentos :: topbar}"></header>
+                <main class="im-content">
+                    <div class="im-header-row">
+                        <h1 class="im-title">[[#{producto.modificar}]]</h1>
+                    </div>
+                    <!-- HU2: Edición de productos existentes -->
+                    <div class="im-form-card im-config">
+                        <h2>[[${producto.nombre}]]</h2>
+                        <p class="im-form-sub">[[#{producto.modificarSub}]]</p>
+                        <form th:action="@{/producto/guardar}" method="POST">
+                            <div th:replace="~{producto/fragmentos :: camposProducto(${producto})}"></div>
+                            <div class="d-flex gap-3 mt-4">
+                                <a th:href="@{/producto/listado}" class="btn btn-outline-secondary px-4">[[#{accion.regresar}]]</a>
+                                <button type="submit" class="btn-im btn-im-sm"><i class="fa-solid fa-floppy-disk"></i> [[#{accion.guardar}]]</button>
+                            </div>
+                        </form>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </body>
+</html>

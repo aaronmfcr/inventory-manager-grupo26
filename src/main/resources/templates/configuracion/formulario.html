@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head(#{menu.configuracion})}"></head>
+    <body>
+        <div class="im-layout">
+            <aside th:replace="~{general/fragmentos :: sidebar}"></aside>
+            <div class="im-main">
+                <header th:replace="~{general/fragmentos :: topbar}"></header>
+                <main class="im-content">
+                    <div class="im-config">
+                        <div th:replace="~{general/fragmentos :: mensajes}"></div>
+                    </div>
+                    <div class="im-header-row im-config">
+                        <h1 class="im-title">[[#{menu.configuracion}]]</h1>
+                        <a th:href="@{/idioma}" class="im-tab"><i class="fa-solid fa-language me-1"></i>[[#{idioma.titulo}]]</a>
+                    </div>
+                    <!-- HU12: información del negocio -->
+                    <div class="im-form-card im-config">
+                        <h2>[[#{configuracion.titulo}]]</h2>
+                        <p class="im-form-sub">[[#{configuracion.sub}]]</p>
+                        <form th:action="@{/configuracion/guardar}" th:object="${configuracion}" method="POST">
+                            <input type="hidden" th:field="*{idConfiguracion}"/>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="im-label">[[#{configuracion.nombre}]]</label>
+                                    <input type="text" class="form-control im-input" th:field="*{nombreNegocio}" maxlength="80" required/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="im-label">Email</label>
+                                    <input type="email" class="form-control im-input" th:field="*{email}" maxlength="100"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="im-label">[[#{configuracion.telefono}]]</label>
+                                    <input type="text" class="form-control im-input" th:field="*{telefono}" maxlength="30"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="im-label">[[#{configuracion.direccion}]]</label>
+                                    <input type="text" class="form-control im-input" th:field="*{direccion}" maxlength="200"/>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <button type="submit" class="btn-im btn-im-sm"><i class="fa-solid fa-floppy-disk"></i> [[#{accion.guardar}]]</button>
+                            </div>
+                        </form>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </body>
+</html>

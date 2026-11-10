@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head(#{idioma.titulo})}"></head>
+    <body>
+        <div class="im-layout">
+            <aside th:replace="~{general/fragmentos :: sidebar}"></aside>
+            <div class="im-main">
+                <header th:replace="~{general/fragmentos :: topbar}"></header>
+                <main class="im-content">
+                    <h1 class="im-title mb-4">[[#{idioma.titulo}]]</h1>
+                    <!-- HU14: cambio de idioma (Semana 2 - Internacionalización) -->
+                    <div class="im-form-card im-idioma-card">
+                        <h2>[[#{idioma.seleccione}]]</h2>
+                        <p class="im-form-sub">[[#{idioma.sub}]]</p>
+                        <a th:href="@{/idioma(lang='es')}" class="im-idioma-opcion" th:classappend="${#locale.language == 'es'} ? 'activo'">
+                            <span class="im-bandera">🇨🇷</span> Español
+                            <i class="fa-solid fa-check ms-auto" th:if="${#locale.language == 'es'}"></i>
+                        </a>
+                        <a th:href="@{/idioma(lang='en')}" class="im-idioma-opcion" th:classappend="${#locale.language == 'en'} ? 'activo'">
+                            <span class="im-bandera">🇺🇸</span> English
+                            <i class="fa-solid fa-check ms-auto" th:if="${#locale.language == 'en'}"></i>
+                        </a>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </body>
+</html>

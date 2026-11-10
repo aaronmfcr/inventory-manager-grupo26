@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head(#{busqueda.titulo})}"></head>
+    <body>
+        <div class="im-layout">
+            <aside th:replace="~{general/fragmentos :: sidebar}"></aside>
+            <div class="im-main">
+                <header th:replace="~{general/fragmentos :: topbar}"></header>
+                <main class="im-content">
+                    <div th:replace="~{general/fragmentos :: mensajes}"></div>
+
+                    <!-- HU4: Búsqueda de productos -->
+                    <form class="im-search-grande" th:action="@{/producto/buscar}" method="GET">
+                        <i class="fas fa-magnifying-glass"></i>
+                        <input type="search" name="buscar" th:value="${buscar}" th:placeholder="#{busqueda.placeholder}" autofocus/>
+                    </form>
+
+                    <div th:if="${buscar != null}">
+                        <p class="im-subtitle mb-3">[[#{busqueda.resultados(${#lists.size(productos)}, ${buscar})}]]</p>
+                        <div th:replace="~{producto/fragmentos :: tablaProductos}"></div>
+                    </div>
+                </main>
+            </div>
+        </div>
+        <div th:replace="~{producto/fragmentos :: reponerStock}"></div>
+        <div th:replace="~{producto/fragmentos :: eliminarProducto}"></div>
+    </body>
+</html>
