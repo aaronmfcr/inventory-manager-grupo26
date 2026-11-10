@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head(#{menu.ventas})}"></head>
+    <body>
+        <div class="im-layout">
+            <aside th:replace="~{general/fragmentos :: sidebar}"></aside>
+            <div class="im-main">
+                <header th:replace="~{general/fragmentos :: topbar}"></header>
+                <main class="im-content">
+                    <div th:replace="~{general/fragmentos :: mensajes}"></div>
+                    <h1 class="im-title">[[#{menu.ventas}]]</h1>
+
+                    <div class="d-flex justify-content-end mt-4 mb-3">
+                        <button type="button" class="btn-im" data-bs-toggle="modal" data-bs-target="#registrarVenta">
+                            <i class="fa-solid fa-plus"></i> [[#{venta.registrar}]]
+                        </button>
+                    </div>
+
+                    <!-- HU6: Registro de ventas -->
+                    <div class="im-table-card">
+                        <table class="im-table" th:if="${!ventas.empty}">
+                            <thead>
+                                <tr>
+                                    <th>[[#{venta.fecha}]]</th>
+                                    <th>[[#{venta.producto}]]</th>
+                                    <th class="centro">[[#{venta.cantidad}]]</th>
+                                    <th class="centro">[[#{venta.precioUnitario}]]</th>
+                                    <th class="centro">[[#{venta.total}]]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="v : ${ventas}">
+                                    <td class="text-nowrap"><i class="fa-regular fa-calendar me-2"></i>[[${#temporals.format(v.fecha, 'dd/MM/yyyy')}]]</td>
+                                    <td>[[${v.producto.nombre}]]</td>
+                                    <td class="centro">[[${v.cantidad}]]</td>
+                                    <td class="centro" th:insert="~{general/fragmentos :: colones(${v.precioUnitario})}"></td>
+                                    <td class="centro" th:insert="~{general/fragmentos :: colones(${v.total})}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="im-table-vacia" th:if="${ventas.empty}">[[#{venta.noDatos}]]</div>
+                    </div>
+                    <p class="im-subtitle text-end mt-3" th:if="${!ventas.empty}">
+                        [[#{venta.totalIngresos}]]: <strong th:insert="~{general/fragmentos :: colones(${totalIngresos})}"></strong>
+                    </p>
+                </main>
+            </div>
+        </div>
+
+        <!-- Modal para registrar una venta -->
+        <div id="registrarVenta" class="modal fade im-modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">[[#{venta.registrar}]]</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form th:action="@{/venta/registrar}" method="POST">
+                        <div class="modal-body">
+                            <p class="im-modal-sub">[[#{venta.registrarSub}]]</p>
+                            <div class="mb-3">
+                                <label class="im-label">[[#{venta.producto}]]</label>
+                                <select class="form-select im-input" name="idProducto" id="ventaProducto" required onchange="calcularTotalVenta()">
+                                    <option value="" th:text="#{pedido.seleccioneProducto}">Selecciona un producto</option>
+                                    <option th:each="p : ${productos}" th:value="${p.idProducto}"
+                                            th:data-precio="${p.precio}" th:data-stock="${p.existencias}"
+                                            th:disabled="${p.existencias == 0}"
+                                            th:text="${p.nombre} + ' (' + #{producto.stock} + ': ' + ${p.existencias} + ')'"></option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="im-label">[[#{venta.cantidad}]]</label>
+                                <input type="number" class="form-control im-input" name="cantidad" id="ventaCantidad" min="1" value="1" required oninput="calcularTotalVenta()"/>
+                            </div>
+                            <p class="im-subtitle mb-0">[[#{venta.total}]]: <strong id="ventaTotal">₡0</strong></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">[[#{accion.cancelar}]]</button>
+                            <button class="btn-im btn-im-sm" type="submit">[[#{venta.registrar}]]</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
