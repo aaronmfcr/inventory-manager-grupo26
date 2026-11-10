@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head(#{menu.pedidos})}"></head>
+    <body>
+        <div class="im-layout">
+            <aside th:replace="~{general/fragmentos :: sidebar}"></aside>
+            <div class="im-main">
+                <header th:replace="~{general/fragmentos :: topbar}"></header>
+                <main class="im-content">
+                    <div th:replace="~{general/fragmentos :: mensajes}"></div>
+                    <div class="im-header-row">
+                        <h1 class="im-title">[[#{menu.pedidos}]]</h1>
+                        <button type="button" class="btn-im" data-bs-toggle="modal" data-bs-target="#nuevoPedido">
+                            <i class="fa-solid fa-plus"></i> [[#{pedido.nuevo}]]
+                        </button>
+                    </div>
+
+                    <!-- HU13: Estatus de pedidos -->
+                    <div class="im-table-card">
+                        <table class="im-table" th:if="${!pedidos.empty}">
+                            <thead>
+                                <tr>
+                                    <th>[[#{venta.fecha}]]</th>
+                                    <th>[[#{venta.producto}]]</th>
+                                    <th class="centro">[[#{venta.cantidad}]]</th>
+                                    <th>[[#{pedido.proveedor}]]</th>
+                                    <th class="centro">[[#{producto.estado}]]</th>
+                                    <th class="centro">[[#{producto.acciones}]]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="p : ${pedidos}">
+                                    <td class="text-nowrap">[[${#temporals.format(p.fecha, 'dd/MM/yyyy')}]]</td>
+                                    <td>[[${p.producto.nombre}]]</td>
+                                    <td class="centro">[[${p.cantidad}]]</td>
+                                    <td>[[${p.proveedor}]]</td>
+                                    <td class="centro">
+                                        <span class="im-estado" th:classappend="${p.estado}" th:text="#{${'pedido.estado.' + p.estado}}">Procesando</span>
+                                    </td>
+                                    <td class="centro text-nowrap">
+                                        <th:block th:if="${p.estado == 'PROCESANDO'}">
+                                            <!-- HU8: al completar, el stock del producto se actualiza -->
+                                            <form th:action="@{/pedido/completar}" method="POST" class="d-inline">
+                                                <input type="hidden" name="idPedido" th:value="${p.idPedido}"/>
+                                                <button type="submit" class="im-accion reponer" th:title="#{pedido.marcarCompletado}">
+                                                    <i class="fa-solid fa-circle-check"></i>
+                                                </button>
+                                            </form>
+                                            <form th:action="@{/pedido/cancelar}" method="POST" class="d-inline">
+                                                <input type="hidden" name="idPedido" th:value="${p.idPedido}"/>
+                                                <button type="submit" class="im-accion eliminar" th:title="#{pedido.cancelar}">
+                                                    <i class="fa-solid fa-circle-xmark"></i>
+                                                </button>
+                                            </form>
+                                        </th:block>
+                                        <span th:unless="${p.estado == 'PROCESANDO'}" class="text-muted">—</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="im-table-vacia" th:if="${pedidos.empty}">[[#{pedido.noDatos}]]</div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- HU9: Nuevo pedido (ventana modal, igual que en Figma) -->
+        <div id="nuevoPedido" class="modal fade im-modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">[[#{pedido.nuevo}]]</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form th:action="@{/pedido/crear}" method="POST">
+                        <div class="modal-body px-4">
+                            <p class="im-modal-sub mb-4">[[#{pedido.nuevoSub}]]</p>
+                            <div class="mb-3">
+                                <label class="im-label">[[#{venta.producto}]]</label>
+                                <select class="form-select im-input" name="idProducto" required>
+                                    <option value="" th:text="#{pedido.seleccioneProducto}">Selecciona un producto</option>
+                                    <option th:each="pr : ${productos}" th:value="${pr.idProducto}"
+                                            th:text="${pr.nombre} + ' (' + #{producto.stock} + ': ' + ${pr.existencias} + ')'"></option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="im-label">[[#{venta.cantidad}]]</label>
+                                <input type="number" class="form-control im-input" name="cantidad" min="1" required/>
+                            </div>
+                            <div class="mb-4">
+                                <label class="im-label">[[#{pedido.proveedor}]]</label>
+                                <input type="text" class="form-control im-input" name="proveedor" maxlength="80" required/>
+                            </div>
+                            <div class="text-center">
+                                <button class="btn-im px-5" type="submit">[[#{pedido.crear}]]</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
