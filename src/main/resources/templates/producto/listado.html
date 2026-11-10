@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head(#{menu.productos})}"></head>
+    <body>
+        <div class="im-layout">
+            <aside th:replace="~{general/fragmentos :: sidebar}"></aside>
+            <div class="im-main">
+                <header th:replace="~{general/fragmentos :: topbar}"></header>
+                <main class="im-content">
+                    <div th:replace="~{general/fragmentos :: mensajes}"></div>
+                    <div class="im-header-row">
+                        <h1 class="im-title">[[#{menu.productos}]]</h1>
+                        <button type="button" class="btn-im" data-bs-toggle="modal" data-bs-target="#agregarProducto">
+                            <i class="fa-solid fa-plus"></i> [[#{producto.agregar}]]
+                        </button>
+                    </div>
+
+                    <!-- HU5: filtro por categoría (pestañas - Semana 7) -->
+                    <div class="im-tabs">
+                        <a th:href="@{/producto/listado}" class="im-tab" th:classappend="${categoriaActual == null} ? 'activo'">[[#{producto.todas}]]</a>
+                        <a th:each="c : ${categorias}" th:href="@{/producto/listado(categoria=${c.idCategoria})}"
+                           class="im-tab" th:classappend="${categoriaActual == c.idCategoria} ? 'activo'">[[${c.descripcion}]]</a>
+                        <button type="button" class="im-tab border-dashed" data-bs-toggle="modal" data-bs-target="#modalCategorias">
+                            <i class="fa-solid fa-tags me-1"></i>[[#{categoria.administrar}]]
+                        </button>
+                    </div>
+
+                    <div th:replace="~{producto/fragmentos :: tablaProductos}"></div>
+                </main>
+            </div>
+        </div>
+        <div th:replace="~{producto/fragmentos :: agregarProducto}"></div>
+        <div th:replace="~{producto/fragmentos :: reponerStock}"></div>
+        <div th:replace="~{producto/fragmentos :: eliminarProducto}"></div>
+        <div th:replace="~{producto/fragmentos :: categorias}"></div>
+    </body>
+</html>
