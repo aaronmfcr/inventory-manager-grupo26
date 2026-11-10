@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <!-- =====================================================
+         Fragmentos generales de la plantilla (Semana 2 y 3)
+         head, menú lateral, barra superior, mensajes y scripts
+         ===================================================== -->
+    <head th:fragment="head(titulo)">
+        <title th:text="${titulo} + ' | Inventory Manager'">Inventory Manager</title>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <!-- Librerías (webjars) -->
+        <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet"/>
+        <link th:href="@{/webjars/font-awesome/css/all.css}" rel="stylesheet"/>
+        <link th:href="@{/css/estilos.css}" rel="stylesheet"/>
+        <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+        <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+        <script th:src="@{/js/rutinas.js}"></script>
+    </head>
+    <body>
+
+        <!-- Menú lateral -->
+        <aside th:fragment="sidebar" class="im-sidebar">
+            <a th:href="@{/}" class="im-logo">Inventory<br/>Manager</a>
+            <ul class="im-nav">
+                <li th:classappend="${urlActual == '/'} ? 'activo'">
+                    <a th:href="@{/}">[[#{menu.inicio}]]</a>
+                </li>
+                <li th:classappend="${#strings.startsWith(urlActual, '/producto')} ? 'activo'">
+                    <a th:href="@{/producto/listado}">[[#{menu.productos}]]</a>
+                </li>
+                <li th:classappend="${#strings.startsWith(urlActual, '/venta')} ? 'activo'">
+                    <a th:href="@{/venta/listado}">[[#{menu.ventas}]]</a>
+                </li>
+                <li th:classappend="${#strings.startsWith(urlActual, '/notificacion')} ? 'activo'">
+                    <a th:href="@{/notificacion/listado}">[[#{menu.notificaciones}]]</a>
+                </li>
+                <li th:classappend="${#strings.startsWith(urlActual, '/pedido')} ? 'activo'">
+                    <a th:href="@{/pedido/listado}">[[#{menu.pedidos}]]</a>
+                </li>
+            </ul>
+            <hr class="im-divider"/>
+            <ul class="im-nav mt-0">
+                <li th:classappend="${#strings.startsWith(urlActual, '/soporte')} ? 'activo'">
+                    <a th:href="@{/soporte}">[[#{menu.soporte}]]</a>
+                </li>
+            </ul>
+            <hr class="im-divider"/>
+            <ul class="im-nav mt-0">
+                <li th:classappend="${#strings.startsWith(urlActual, '/configuracion') or #strings.startsWith(urlActual, '/idioma')} ? 'activo'">
+                    <a th:href="@{/configuracion}">[[#{menu.configuracion}]]</a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Barra superior: búsqueda (HU4), notificaciones (HU10), idioma (HU14), configuración y ayuda -->
+        <header th:fragment="topbar" class="im-topbar">
+            <form class="im-search" th:action="@{/producto/buscar}" method="GET">
+                <i class="fas fa-magnifying-glass"></i>
+                <input type="search" name="buscar" th:placeholder="#{topbar.buscar}" th:value="${buscar}"/>
+            </form>
+            <div class="im-topbar-right">
+                <a th:href="@{/notificacion/listado}" class="im-bell" th:title="#{menu.notificaciones}">
+                    <i class="fas fa-bell"></i>
+                    <span class="im-badge-count" th:if="${notificacionesNoLeidas > 0}">[[${notificacionesNoLeidas}]]</span>
+                </a>
+                <div class="dropdown im-idioma">
+                    <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        [[#{idioma.actual}]]
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" th:href="@{${urlActual}(lang='es')}">🇨🇷 Español</a></li>
+                        <li><a class="dropdown-item" th:href="@{${urlActual}(lang='en')}">🇺🇸 English</a></li>
+                        <li><hr class="dropdown-divider"/></li>
+                        <li><a class="dropdown-item" th:href="@{/idioma}">[[#{idioma.titulo}]]</a></li>
+                    </ul>
+                </div>
+                <a th:href="@{/configuracion}" class="im-gear" th:title="#{menu.configuracion}"><i class="fas fa-gear"></i></a>
+                <a th:href="@{/soporte}" class="im-ayuda">[[#{topbar.ayuda}]]</a>
+            </div>
+        </header>
+
+        <!-- Mensajes de éxito o error que envían los controladores -->
+        <div th:fragment="mensajes">
+            <div th:if="${todoOk != null}" class="alert alert-success alert-dismissible fade show im-alert" role="alert">
+                <i class="fas fa-circle-check me-2"></i>[[${todoOk}]]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show im-alert" role="alert">
+                <i class="fas fa-triangle-exclamation me-2"></i>[[${error}]]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+
+        <!-- Formato de moneda en colones: ₡305 000 -->
+        <span th:fragment="colones(monto)" th:text="'₡' + ${#numbers.formatDecimal(monto, 1, 'WHITESPACE', 0, 'POINT')}">₡0</span>
+    </body>
+</html>
