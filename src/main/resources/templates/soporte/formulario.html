@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head(#{menu.soporte})}"></head>
+    <body>
+        <div class="im-layout">
+            <aside th:replace="~{general/fragmentos :: sidebar}"></aside>
+            <div class="im-main">
+                <header th:replace="~{general/fragmentos :: topbar}"></header>
+                <main class="im-content">
+                    <div class="im-soporte">
+                        <div th:replace="~{general/fragmentos :: mensajes}"></div>
+                        <h1 class="im-title text-center mb-4">[[#{menu.soporte}]]</h1>
+                        <!-- HU13 y HU15: formulario de contacto a soporte técnico -->
+                        <div class="im-form-card">
+                            <h2 class="text-center">[[#{soporte.titulo}]]</h2>
+                            <p class="im-form-sub text-center">[[#{soporte.sub}]]</p>
+                            <form th:action="@{/soporte/enviar}" method="POST">
+                                <div class="mb-3">
+                                    <label class="im-label">[[#{soporte.nombre}]]</label>
+                                    <input type="text" class="form-control im-input" name="nombre" maxlength="80" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="im-label">Email</label>
+                                    <input type="email" class="form-control im-input" name="email" maxlength="100" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="im-label">[[#{soporte.asunto}]]</label>
+                                    <input type="text" class="form-control im-input" name="asunto" maxlength="100" required/>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="im-label">[[#{soporte.mensaje}]]</label>
+                                    <textarea class="form-control im-input" name="mensaje" rows="3" required></textarea>
+                                </div>
+                                <button type="submit" class="btn-im btn-im-block">[[#{soporte.enviar}]]</button>
+                            </form>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </body>
+</html>

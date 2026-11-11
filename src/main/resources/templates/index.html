@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head(#{menu.inicio})}"></head>
+    <body>
+        <div class="im-layout">
+            <aside th:replace="~{general/fragmentos :: sidebar}"></aside>
+            <div class="im-main">
+                <header th:replace="~{general/fragmentos :: topbar}"></header>
+                <main class="im-content">
+                    <div th:replace="~{general/fragmentos :: mensajes}"></div>
+                    <h1 class="im-title">[[#{menu.inicio}]]</h1>
+
+                    <!-- Tarjetas resumen (Semana 7: tarjetas) -->
+                    <div class="im-cards">
+                        <a th:href="@{/producto/listado}" class="im-card">
+                            <div class="im-card-head">
+                                <span class="im-card-title">[[#{inicio.totalProductos}]]</span>
+                                <i class="fa-solid fa-bag-shopping im-card-icon"></i>
+                            </div>
+                            <div class="im-card-body">
+                                <div class="im-card-value">[[${totalProductos}]]</div>
+                                <div class="im-card-detail">[[#{inicio.enStockBajo(${stockBajo})}]]</div>
+                            </div>
+                        </a>
+                        <a th:href="@{/pedido/listado}" class="im-card">
+                            <div class="im-card-head">
+                                <span class="im-card-title">[[#{inicio.pedidosTotales}]]</span>
+                                <i class="fa-solid fa-cart-shopping im-card-icon"></i>
+                            </div>
+                            <div class="im-card-body">
+                                <div class="im-card-value">[[${totalPedidos}]]</div>
+                                <div class="im-card-detail">[[#{inicio.enProceso(${pedidosEnProceso})}]]</div>
+                            </div>
+                        </a>
+                        <a th:href="@{/venta/listado}" class="im-card">
+                            <div class="im-card-head">
+                                <span class="im-card-title">[[#{inicio.ingresosTotales}]]</span>
+                                <i class="fa-solid fa-hand-holding-dollar im-card-icon"></i>
+                            </div>
+                            <div class="im-card-body">
+                                <div class="im-card-value" th:insert="~{general/fragmentos :: colones(${totalIngresos})}"></div>
+                                <div class="im-card-detail">[[#{inicio.enVentas(${totalVentas})}]]</div>
+                            </div>
+                        </a>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </body>
+</html>
